@@ -29,29 +29,11 @@ class Genplaylist2Glade
   end
   
   def on_updatePlaylist_clicked(widget)
-    maxHours = @glade["entryFileAge"].text
-    matches = @glade["entryMatches"].text
-    notMatch = @glade["entryNotmatch"].text
-    minHours = @glade["entryMinHours"].text
-    matchCase =@glade["checkbuttoncase1"].active?
-    notMatchCase = @glade["checkbuttoncase2"].active?
-    neverseen = @glade["checkNeverSeen"].active?
-    config = @config
-    @glade["textview1"].buffer.text = genPlaylist(config, matches, notMatch, minHours, maxHours, matchCase, notMatchCase, neverseen, enableSend=true)
+    @glade["textview1"].buffer.text = genPlaylist( enableSend=true )
   end
 
-  def on_genPreview_clicked(widget)
-    maxHours = @glade["entryFileAge"].text
-    matches = @glade["entryMatches"].text
-    notMatch = @glade["entryNotmatch"].text
-    minHours = @glade["entryMinHours"].text
-    matchCase =@glade["checkbuttoncase1"].active?
-    notMatchCase = @glade["checkbuttoncase2"].active?
-    neverseen = @glade["checkNeverSeen"].active?
-    puts "matchCase = #{matchCase}"
-    config = @config
-    #genPlaylist(config, match, notMatch, minHoursLastSeen, maxHoursLastSeen,matchCase=true,notMatchCase=true, enableSend=false)
-    @glade["textview1"].buffer.text = genPlaylist(config, matches, notMatch, minHours, maxHours,matchCase, notMatchCase, neverseen, enableSend=false)
+  def on_genPreview_clicked(widget)   
+     @glade["textview1"].buffer.text = genPlaylist( enableSend=false )
   end
 
   def on_quit_clicked(widget)
@@ -60,13 +42,13 @@ class Genplaylist2Glade
   
   def on_imagemenuQuit_activate(widget)
     Gtk.main_quit
-    puts "on_imagemenuQuit_activate() is not implemented yet."
+    puts "on_imagemenuQuit_activate() ."
   end
   
   def on_cancelConfig_clicked(widget)
     window = @glade['dialogConfig']
     window.hide
-    puts "on_cancelConfig_clicked() is not implemented yet."
+    puts "on_cancelConfig_clicked() ."
   end
 
   def on_preferences_activate(widget)
@@ -77,22 +59,22 @@ class Genplaylist2Glade
     @glade['entryExt'].buffer.text = config['mediaExt'].to_s
     window = @glade['dialogConfig']
     window.show
-    puts "on_preferences_activate() is not implemented yet."
+    puts "on_preferences_activate() ."
   end
 
   def on_buttonMediaPath_clicked(widget)
     @glade['entryMediaPath'].buffer.text = filechooser()
-    puts "on_buttonMediaPath_clicked() is not implemented yet."
+    puts "on_buttonMediaPath_clicked() ."
   end
 
   def on_buttonTempPath_clicked(widget)
     @glade['entryMediaPathIgnore'].buffer.text = filechooser()
-    puts "on_buttonTempPath_clicked() is not implemented yet."
+    puts "on_buttonTempPath_clicked()."
   end
 
   def on_buttonHistoryFile_clicked(widget)
     @glade['entryPlayHistoryFile'].buffer.text = filechooser()
-    puts "on_buttonHistoryFile_clicked() is not implemented yet."
+    puts "on_buttonHistoryFile_clicked() ."
   end
 
   def on_saveConfig_clicked(widget)
@@ -105,7 +87,7 @@ class Genplaylist2Glade
     @config = config
     window = @glade['dialogConfig']
     window.hide
-    puts "on_saveConfig_clicked() is not implemented yet."
+    puts "on_saveConfig_clicked() ."
   end
 
   def on_imagemenuAbout_activate(widget)
@@ -113,10 +95,10 @@ class Genplaylist2Glade
     window.show
     responce = window.run
     window.hide
-    puts "on_imagemenuAbout_activate() is not implemented yet."
+    puts "on_imagemenuAbout_activate() ."
   end
 
-   def getPlayHistory(playHistoryFile)
+  def getPlayHistory(playHistoryFile)
     historyhash = {}
     #puts "playHistoryFile = #{play_history_file}"
     File.open(playHistoryFile) do |fp|
@@ -130,14 +112,23 @@ class Genplaylist2Glade
     return historyhash
   end
 
-  def genPlaylist(config, match, notMatch, minHoursLastSeen, maxHoursLastSeen,matchCase=true,notMatchCase=true, neverseen=true, enableSend=false)
-    count = 0
+  def genPlaylist( enableSend=false )   
+    maxHoursLastSeen = @glade["entryFileAge"].text
+    match = @glade["entryMatches"].text
+    notMatch = @glade["entryNotmatch"].text
+    minHoursLastSeen = @glade["entryMinHours"].text
+    matchCase =@glade["checkbuttoncase1"].active?
+    notMatchCase = @glade["checkbuttoncase2"].active?
+    neverseen = @glade["checkNeverSeen"].active?
+    fileSizeMax = @glade["entryFileSizeMax"].text
+    fileSizeMin = @glade["entryFileSizeMin"].text
     if enableSend then
       mpris = MPRIS.new
     end
-    historyhash = getPlayHistory(config['playHistoryFile'])
+    historyhash = getPlayHistory(@config['playHistoryFile'])
     display = ""
-    Find.find(config['mediaPath']) do |file|
+    count = 0
+    Find.find(@config['mediaPath']) do |file|
       #skip .. and . dirs
       next if file =~ /^\.\.?$/
       #skip it if the entry is a directory
@@ -151,10 +142,10 @@ class Genplaylist2Glade
       ext = File.extname(base)
       #puts "dir = #{dir}"
       # skip unfinished torrent downloads in temp path
-      if dir == config['tempPath'] then next end
+      if dir == @config['tempPath'] then next end
       #puts "not tempPath"
       # skip if file is now type avi video
-      if ext != ".avi" then next end
+      if ext != @config['mediaExt'] then next end
       #puts "is an .avi file"
       # many torrents come with samples and stuf that I don't want to bother with so filter them out
       if notMatch.length > 0  then
@@ -189,19 +180,28 @@ class Genplaylist2Glade
           if historyhash[base].to_i < minLastSeen then next end
         end
         if minHoursLastSeen.to_i != 0 then
-          #puts "minHoursLastSeen not zero"
-          # skip if we have already seen within the last minHoursLastSeen hours ago         
-          if historyhash[base].to_i > maxLastSeen then next end
+          puts "minHoursLastSeen not zero, maxLastSeen = #{maxLastSeen} mtime = #{File.stat(file).mtime.to_i} "
+          # skip if we have already seen within the last minHoursLastSeen hours ago 
+          if File.stat(file).mtime.to_i < maxLastSeen then next end        
+          #if historyhash[base].to_i > maxLastSeen then next end
         end
+        
       end
-      
+      if fileSizeMax.length > 0 then 
+        puts "fileSize.length > 0 "
+        if (fileSizeMax.to_i * 1000000) < File.stat(file).size then next end
+      end
+      if fileSizeMin.length > 0 then 
+        if (fileSizeMin.to_i * 1000000) > File.stat(file).size then next end
+      end
       puts "base = #{base}"
+      puts "file size = #{File.stat(file).size}"
       puts "lastseen = #{historyhash[base].to_i}"
       #puts "maxtime = #{maxtime}"
       display = "#{display}#{base} \n"
       if historyhash[base.strip].to_i != 0 then
         #puts "seen here as not zero history"
-        display = "#{display}lastseen = #{historyhash[base].to_i}\n"
+        #display = "#{display}lastseen = #{historyhash[base].to_i}\n"
       end
       #puts "ext = #{ ext }"
       #puts "file #{file}"    

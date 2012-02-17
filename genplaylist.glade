@@ -158,7 +158,7 @@
         <child>
           <widget class="GtkTable" id="table1">
             <property name="visible">True</property>
-            <property name="n_rows">4</property>
+            <property name="n_rows">6</property>
             <property name="n_columns">2</property>
             <child>
               <widget class="GtkEntry" id="entryMatches">
@@ -217,7 +217,7 @@
                 <property name="visible">True</property>
                 <child>
                   <widget class="GtkCheckButton" id="checkbuttoncase1">
-                    <property name="label" translatable="yes">Match case </property>
+                    <property name="label" translatable="yes">Match case                     </property>
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
                     <property name="receives_default">False</property>
@@ -245,7 +245,7 @@
                 <property name="visible">True</property>
                 <child>
                   <widget class="GtkCheckButton" id="checkbuttoncase2">
-                    <property name="label" translatable="yes">Match case</property>
+                    <property name="label" translatable="yes">Match case       </property>
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
                     <property name="receives_default">False</property>
@@ -276,7 +276,7 @@
                 <property name="visible">True</property>
                 <child>
                   <widget class="GtkCheckButton" id="checkNeverSeen">
-                    <property name="label" translatable="yes">Only never seen </property>
+                    <property name="label" translatable="yes">Only never seen  </property>
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
                     <property name="receives_default">False</property>
@@ -290,7 +290,7 @@
                 <child>
                   <widget class="GtkLabel" id="label4">
                     <property name="visible">True</property>
-                    <property name="label" translatable="yes">Min Hrs last seen:</property>
+                    <property name="label" translatable="yes">Max Hrs file age: </property>
                   </widget>
                   <packing>
                     <property name="position">1</property>
@@ -327,6 +327,86 @@
               <packing>
                 <property name="top_attach">3</property>
                 <property name="bottom_attach">4</property>
+              </packing>
+            </child>
+            <child>
+              <widget class="GtkHBox" id="hbox5">
+                <property name="visible">True</property>
+                <child>
+                  <widget class="GtkLabel" id="label13">
+                    <property name="visible">True</property>
+                    <property name="label" translatable="yes">                            </property>
+                  </widget>
+                  <packing>
+                    <property name="position">0</property>
+                  </packing>
+                </child>
+                <child>
+                  <widget class="GtkLabel" id="label14">
+                    <property name="visible">True</property>
+                    <property name="label" translatable="yes">File size meg Max:</property>
+                  </widget>
+                  <packing>
+                    <property name="position">1</property>
+                  </packing>
+                </child>
+              </widget>
+              <packing>
+                <property name="top_attach">4</property>
+                <property name="bottom_attach">5</property>
+              </packing>
+            </child>
+            <child>
+              <widget class="GtkHBox" id="hbox6">
+                <property name="visible">True</property>
+                <child>
+                  <widget class="GtkLabel" id="label15">
+                    <property name="visible">True</property>
+                    <property name="label" translatable="yes">                             </property>
+                  </widget>
+                  <packing>
+                    <property name="position">0</property>
+                  </packing>
+                </child>
+                <child>
+                  <widget class="GtkLabel" id="label16">
+                    <property name="visible">True</property>
+                    <property name="label" translatable="yes">File size meg Min:</property>
+                  </widget>
+                  <packing>
+                    <property name="position">1</property>
+                  </packing>
+                </child>
+              </widget>
+              <packing>
+                <property name="top_attach">5</property>
+                <property name="bottom_attach">6</property>
+              </packing>
+            </child>
+            <child>
+              <widget class="GtkEntry" id="entryFileSizeMax">
+                <property name="visible">True</property>
+                <property name="can_focus">True</property>
+                <property name="invisible_char">&#x25CF;</property>
+              </widget>
+              <packing>
+                <property name="left_attach">1</property>
+                <property name="right_attach">2</property>
+                <property name="top_attach">4</property>
+                <property name="bottom_attach">5</property>
+              </packing>
+            </child>
+            <child>
+              <widget class="GtkEntry" id="entryFileSizeMin">
+                <property name="visible">True</property>
+                <property name="can_focus">True</property>
+                <property name="invisible_char">&#x25CF;</property>
+              </widget>
+              <packing>
+                <property name="left_attach">1</property>
+                <property name="right_attach">2</property>
+                <property name="top_attach">5</property>
+                <property name="bottom_attach">6</property>
               </packing>
             </child>
           </widget>
