@@ -452,44 +452,6 @@
                 <property name="n_rows">4</property>
                 <property name="n_columns">3</property>
                 <child>
-                  <widget class="GtkFileChooserButton" id="filechooserMediaPath">
-                    <property name="visible">True</property>
-                    <property name="action">save</property>
-                    <signal name="file_set" handler="on_filechooserMediaPath_file_set"/>
-                  </widget>
-                  <packing>
-                    <property name="left_attach">2</property>
-                    <property name="right_attach">3</property>
-                    <property name="x_options"></property>
-                  </packing>
-                </child>
-                <child>
-                  <widget class="GtkFileChooserButton" id="filechooserMediaPathIgnore">
-                    <property name="visible">True</property>
-                    <signal name="file_set" handler="on_filechooserMediaPathIgnore_file_set"/>
-                  </widget>
-                  <packing>
-                    <property name="left_attach">2</property>
-                    <property name="right_attach">3</property>
-                    <property name="top_attach">1</property>
-                    <property name="bottom_attach">2</property>
-                    <property name="x_options"></property>
-                  </packing>
-                </child>
-                <child>
-                  <widget class="GtkFileChooserButton" id="filechooserHistoryFile">
-                    <property name="visible">True</property>
-                    <signal name="file_set" handler="on_filechooserHistoryFile_file_set"/>
-                  </widget>
-                  <packing>
-                    <property name="left_attach">2</property>
-                    <property name="right_attach">3</property>
-                    <property name="top_attach">2</property>
-                    <property name="bottom_attach">3</property>
-                    <property name="x_options"></property>
-                  </packing>
-                </child>
-                <child>
                   <widget class="GtkLabel" id="label7">
                     <property name="visible">True</property>
                   </widget>
@@ -586,6 +548,52 @@
                     <property name="right_attach">2</property>
                     <property name="top_attach">3</property>
                     <property name="bottom_attach">4</property>
+                  </packing>
+                </child>
+                <child>
+                  <widget class="GtkButton" id="buttonMediaPath">
+                    <property name="label">gtk-open</property>
+                    <property name="visible">True</property>
+                    <property name="can_focus">True</property>
+                    <property name="receives_default">True</property>
+                    <property name="use_stock">True</property>
+                    <signal name="clicked" handler="on_buttonMediaPath_clicked"/>
+                  </widget>
+                  <packing>
+                    <property name="left_attach">2</property>
+                    <property name="right_attach">3</property>
+                  </packing>
+                </child>
+                <child>
+                  <widget class="GtkButton" id="buttonTempPath">
+                    <property name="label">gtk-open</property>
+                    <property name="visible">True</property>
+                    <property name="can_focus">True</property>
+                    <property name="receives_default">True</property>
+                    <property name="use_stock">True</property>
+                    <signal name="clicked" handler="on_buttonTempPath_clicked"/>
+                  </widget>
+                  <packing>
+                    <property name="left_attach">2</property>
+                    <property name="right_attach">3</property>
+                    <property name="top_attach">1</property>
+                    <property name="bottom_attach">2</property>
+                  </packing>
+                </child>
+                <child>
+                  <widget class="GtkButton" id="buttonHistoryFile">
+                    <property name="label">gtk-open</property>
+                    <property name="visible">True</property>
+                    <property name="can_focus">True</property>
+                    <property name="receives_default">True</property>
+                    <property name="use_stock">True</property>
+                    <signal name="clicked" handler="on_buttonHistoryFile_clicked"/>
+                  </widget>
+                  <packing>
+                    <property name="left_attach">2</property>
+                    <property name="right_attach">3</property>
+                    <property name="top_attach">2</property>
+                    <property name="bottom_attach">3</property>
                   </packing>
                 </child>
               </widget>

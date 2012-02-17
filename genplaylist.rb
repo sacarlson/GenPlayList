@@ -8,68 +8,50 @@
 # to install
 # gem install ruby-mpris
 # and posibly some of the other requires bellow might need to be installed if you don't already have them.
+# note that this also requires that whatplayed.rb is ran with VLC to capture play activity
+
 require 'libglade2'
 require 'rubygems'
 require "find"
 require 'mpris'
 require 'yaml'
 
-class TextEditor
-  attr_accessor :textview, :search , :fileAge, :entryMatches, :entryNotMatch, :minHoursLastSeen, :mediaPath, :playHistoryFile, :tempPath , :config
-end
 
 class Genplaylist2Glade
   include GetText
 
-  attr :glade, :texteditor
+  attr :glade, :config
   
   def initialize(path_or_data, root = nil, domain = nil, localedir = nil, flag = GladeXML::FILE)
     bindtextdomain(domain, localedir, nil, "UTF-8")
     @glade = GladeXML.new(path_or_data, root, domain, localedir, flag) {|handler| method(handler)}
-    @texteditor = TextEditor.new
-    @texteditor.textview = @glade["textview1"]
-    @texteditor.fileAge   = @glade["entryFileAge"]
-    @texteditor.entryMatches   = @glade["entryMatches"]
-    @texteditor.entryNotMatch   = @glade["entryNotmatch"]
-    @texteditor.minHoursLastSeen   = @glade["entryMinHours"]
-    #puts @glade["checkbuttoncase1"].methods
-    puts @glade["checkbuttoncase1"].active?
-    @texteditor.config = loadconfig(configFile = "./genPlayListconfig.yml")
-    #@texteditor.mediaPath = "/media/a2fa7d4f-7d8e-4315-a565-1881d5e884b1/scotty"
-    #playHistoryFile is data captured with whatplayed.rb
-    #@texteditor.playHistoryFile = "/home/sacarlson/vlc_history.txt"
-    #tempPath is location of unfinished torrent downloads to be skiped
-    #@texteditor.tempPath = "/media/a2fa7d4f-7d8e-4315-a565-1881d5e884b1/scotty/video/qBT/temp_parts"
+    @config = loadconfig(configFile = "./genPlayListconfig.yml")
   end
   
   def on_updatePlaylist_clicked(widget)
-    maxHours =  @texteditor.fileAge.text
-    matches = @texteditor.entryMatches.text
-    notMatch = @texteditor.entryNotMatch.text
-    minHours = @texteditor.minHoursLastSeen.text
+    maxHours = @glade["entryFileAge"].text
+    matches = @glade["entryMatches"].text
+    notMatch = @glade["entryNotmatch"].text
+    minHours = @glade["entryMinHours"].text
     matchCase =@glade["checkbuttoncase1"].active?
     notMatchCase = @glade["checkbuttoncase2"].active?
     neverseen = @glade["checkNeverSeen"].active?
-    config = @texteditor.config
-    @texteditor.textview.buffer.text = genPlaylist(config, matches, notMatch, minHours, maxHours, matchCase, notMatchCase, neverseen, enableSend=true)
+    config = @config
+    @glade["textview1"].buffer.text = genPlaylist(config, matches, notMatch, minHours, maxHours, matchCase, notMatchCase, neverseen, enableSend=true)
   end
 
   def on_genPreview_clicked(widget)
-    maxHours =  @texteditor.fileAge.text
-    matches = @texteditor.entryMatches.text
-    notMatch = @texteditor.entryNotMatch.text
-    minHours = @texteditor.minHoursLastSeen.text
+    maxHours = @glade["entryFileAge"].text
+    matches = @glade["entryMatches"].text
+    notMatch = @glade["entryNotmatch"].text
+    minHours = @glade["entryMinHours"].text
     matchCase =@glade["checkbuttoncase1"].active?
     notMatchCase = @glade["checkbuttoncase2"].active?
     neverseen = @glade["checkNeverSeen"].active?
     puts "matchCase = #{matchCase}"
-    #mediaPath = @texteditor.mediaPath
-    #tempPath = @texteditor.tempPath
-    #playHistoryFile = @texteditor.playHistoryFile
-    config = @texteditor.config
+    config = @config
     #genPlaylist(config, match, notMatch, minHoursLastSeen, maxHoursLastSeen,matchCase=true,notMatchCase=true, enableSend=false)
-    @texteditor.textview.buffer.text = genPlaylist(config, matches, notMatch, minHours, maxHours,matchCase, notMatchCase, neverseen, enableSend=false)
-    #@texteditor.textview.buffer.text = mediaPath
+    @glade["textview1"].buffer.text = genPlaylist(config, matches, notMatch, minHours, maxHours,matchCase, notMatchCase, neverseen, enableSend=false)
   end
 
   def on_quit_clicked(widget)
@@ -80,15 +62,7 @@ class Genplaylist2Glade
     Gtk.main_quit
     puts "on_imagemenuQuit_activate() is not implemented yet."
   end
-
-  def on_filechooserMediaPath_file_set(widget)
-    puts "on_filechooserMediaPath_file_set() is not implemented yet."
-  end
-
-  def on_filechooserMediaPathIgnore_file_set(widget)
-    puts "on_filechooserMediaPathIgnore_file_set() is not implemented yet."
-  end
-   
+  
   def on_cancelConfig_clicked(widget)
     window = @glade['dialogConfig']
     window.hide
@@ -106,8 +80,19 @@ class Genplaylist2Glade
     puts "on_preferences_activate() is not implemented yet."
   end
 
-  def on_filechooserHistoryFile_file_set(widget)
-    puts "on_filechooserHistoryFile_file_set() is not implemented yet."
+  def on_buttonMediaPath_clicked(widget)
+    @glade['entryMediaPath'].buffer.text = filechooser()
+    puts "on_buttonMediaPath_clicked() is not implemented yet."
+  end
+
+  def on_buttonTempPath_clicked(widget)
+    @glade['entryMediaPathIgnore'].buffer.text = filechooser()
+    puts "on_buttonTempPath_clicked() is not implemented yet."
+  end
+
+  def on_buttonHistoryFile_clicked(widget)
+    @glade['entryPlayHistoryFile'].buffer.text = filechooser()
+    puts "on_buttonHistoryFile_clicked() is not implemented yet."
   end
 
   def on_saveConfig_clicked(widget)
@@ -117,7 +102,7 @@ class Genplaylist2Glade
     config['playHistoryFile'] = @glade['entryPlayHistoryFile'].text
     config['mediaExt'] = @glade['entryExt'].text
     saveconfig(config, configFile="./genPlayListconfig.yml")
-    @texteditor.config = config
+    @config = config
     window = @glade['dialogConfig']
     window.hide
     puts "on_saveConfig_clicked() is not implemented yet."
@@ -173,8 +158,6 @@ class Genplaylist2Glade
       #puts "is an .avi file"
       # many torrents come with samples and stuf that I don't want to bother with so filter them out
       if notMatch.length > 0  then
-        #puts "notMatch.class = #{notMatch.class}"
-        #puts "notMatch.length = #{notMatch.length}"
         if notMatchCase then        
           if base.include?(notMatch) then next end
         else
@@ -197,9 +180,6 @@ class Genplaylist2Glade
       #puts "hours last seen = #{hlastseen}"
       puts "base = #{base}"
       puts "historyhash[base].to_i =  #{historyhash[base].to_i}"
-      puts "minHoursLastSeen = #{minHoursLastSeen}"
-      puts "maxHoursLastSeen = #{maxHoursLastSeen}"
-      #pp historyhash 
       if neverseen then 
         if historyhash[base.strip].to_i != 0  then next end
       else   
@@ -209,8 +189,8 @@ class Genplaylist2Glade
           if historyhash[base].to_i < minLastSeen then next end
         end
         if minHoursLastSeen.to_i != 0 then
-          # skip if we have already seen within the last minHoursLastSeen hours ago
           #puts "minHoursLastSeen not zero"
+          # skip if we have already seen within the last minHoursLastSeen hours ago         
           if historyhash[base].to_i > maxLastSeen then next end
         end
       end
@@ -238,11 +218,6 @@ class Genplaylist2Glade
   end
 
   def saveconfig(config, configFile="./genPlayListconfig.yml")
-    #config = {}
-    #config['mediaPath'] = mediaPath
-    #config['playHistoryFile'] = play_history_file
-    #config['tempPath'] = tempPath
-    #config['mediaExt'] = ext
     File.open(configFile, "w") do |file|
       file.write config.to_yaml
     end
@@ -272,6 +247,17 @@ class Genplaylist2Glade
     end   
     puts config.inspect
     return config
+  end
+
+  def filechooser()
+    filename = ""
+    dialog = Gtk::FileChooserDialog.new("Select File", nil,
+             Gtk::FileChooser::ACTION_OPEN, nil,
+             [Gtk::Stock::CANCEL, Gtk::Dialog::RESPONSE_CANCEL],
+             [Gtk::Stock::OPEN,   Gtk::Dialog::RESPONSE_ACCEPT] )
+    filename = dialog.filename if dialog.run == Gtk::Dialog::RESPONSE_ACCEPT
+    dialog.destroy
+    return filename
   end
 
 end
