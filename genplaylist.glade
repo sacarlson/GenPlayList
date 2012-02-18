@@ -185,11 +185,10 @@
               </packing>
             </child>
             <child>
-              <widget class="GtkEntry" id="entryMinHours">
+              <widget class="GtkEntry" id="entryMaxFileAge">
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
                 <property name="invisible_char">&#x25CF;</property>
-                <property name="text" translatable="yes">0</property>
               </widget>
               <packing>
                 <property name="left_attach">1</property>
@@ -199,11 +198,10 @@
               </packing>
             </child>
             <child>
-              <widget class="GtkEntry" id="entryFileAge">
+              <widget class="GtkEntry" id="entryMaxLastSeen">
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
                 <property name="invisible_char">&#x25CF;</property>
-                <property name="text" translatable="yes">0</property>
               </widget>
               <packing>
                 <property name="left_attach">1</property>
@@ -419,8 +417,7 @@
             <property name="visible">True</property>
             <property name="can_focus">True</property>
             <child>
-              <widget class="GtkTextView" id="textview1">
-                <property name="height_request">200</property>
+              <widget class="GtkTreeView" id="listview">
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
               </widget>

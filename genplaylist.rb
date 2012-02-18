@@ -26,14 +26,26 @@ class Genplaylist2Glade
     bindtextdomain(domain, localedir, nil, "UTF-8")
     @glade = GladeXML.new(path_or_data, root, domain, localedir, flag) {|handler| method(handler)}
     @config = loadconfig(configFile = "./genPlayListconfig.yml")
+
+    @listview = @glade["listview"]
+    [_("File Name"), _("Files Age hours"), _("Hours Last Seen"), _("File Size MB")].each_with_index { |name, i|
+      column = Gtk::TreeViewColumn.new(name, Gtk::CellRendererText.new, :text => i)
+      @listview.append_column(column)
+    }
+    @store = Gtk::ListStore.new(String, String, String, String)
+    @listview.model = @store
+
+    #puts @listview.clear
+    
   end
   
   def on_updatePlaylist_clicked(widget)
-    @glade["textview1"].buffer.text = genPlaylist( enableSend=true )
+    #@glade["textview1"].buffer.text = genPlaylist( enableSend=true )
+    result = genPlaylist( enableSend=true )
   end
 
   def on_genPreview_clicked(widget)   
-     @glade["textview1"].buffer.text = genPlaylist( enableSend=false )
+     result = genPlaylist( enableSend=false )
   end
 
   def on_quit_clicked(widget)
@@ -112,12 +124,12 @@ class Genplaylist2Glade
     return historyhash
   end
 
-  def genPlaylist( enableSend=false )   
-    maxHoursLastSeen = @glade["entryFileAge"].text
+  def genPlaylist( enableSend=false )
+    maxFileAgeHours = @glade["entryMaxFileAge"].text
+    maxLastSeenHours = @glade["entryMaxLastSeen"].text
     match = @glade["entryMatches"].text
-    notMatch = @glade["entryNotmatch"].text
-    minHoursLastSeen = @glade["entryMinHours"].text
     matchCase =@glade["checkbuttoncase1"].active?
+    notMatch = @glade["entryNotmatch"].text        
     notMatchCase = @glade["checkbuttoncase2"].active?
     neverseen = @glade["checkNeverSeen"].active?
     fileSizeMax = @glade["entryFileSizeMax"].text
@@ -126,8 +138,8 @@ class Genplaylist2Glade
       mpris = MPRIS.new
     end
     historyhash = getPlayHistory(@config['playHistoryFile'])
-    display = ""
     count = 0
+    @store.clear
     Find.find(@config['mediaPath']) do |file|
       #skip .. and . dirs
       next if file =~ /^\.\.?$/
@@ -147,7 +159,7 @@ class Genplaylist2Glade
       # skip if file is now type avi video
       if ext != @config['mediaExt'] then next end
       #puts "is an .avi file"
-      # many torrents come with samples and stuf that I don't want to bother with so filter them out
+      # many torrents come with samples and stuf that I don't want to bother with so filter them out if you want
       if notMatch.length > 0  then
         if notMatchCase then        
           if base.include?(notMatch) then next end
@@ -156,7 +168,6 @@ class Genplaylist2Glade
         end
       end
       #puts "is not a notMatch"
-      # skip if file has no match to entered search param in argument
       #puts "match = #{match}"
       if matchCase then
         if not base.include?(match.strip) then next end
@@ -164,29 +175,27 @@ class Genplaylist2Glade
         if not base.downcase.include?(match.strip) then next end
       end
       #puts "it is a match"
-      # turn min max into secounds ago relitive to time now
-      maxLastSeen = Time.now.to_i - (minHoursLastSeen.to_i * 60 * 60)
-      minLastSeen = Time.now.to_i - (maxHoursLastSeen.to_i * 60 * 60)
-      hlastseen = (Time.now.to_i - historyhash[base].to_i)/(60*60)
-      #puts "hours last seen = #{hlastseen}"
+      # turn min max hours into secounds relitive to time now
+      maxLastSeenTime = Time.now.to_i - (maxLastSeenHours.to_i * 60 * 60)
+      maxFileAgeTime = Time.now.to_i - (maxFileAgeHours.to_i * 60 * 60)
+      hoursLastSeen = (Time.now.to_i - historyhash[base].to_i)/(60*60)
       puts "base = #{base}"
       puts "historyhash[base].to_i =  #{historyhash[base].to_i}"
       if neverseen then 
-        if historyhash[base.strip].to_i != 0  then next end
+        if historyhash[base].to_i != 0  then next end
       else   
-        if maxHoursLastSeen.to_i != 0 then
-          # skip if it's been more than maxHoursLastSeen hours ago
-          puts "maxHoursLastSeen not zero"
-          if historyhash[base].to_i < minLastSeen then next end
-        end
-        if minHoursLastSeen.to_i != 0 then
-          puts "minHoursLastSeen not zero, maxLastSeen = #{maxLastSeen} mtime = #{File.stat(file).mtime.to_i} "
-          # skip if we have already seen within the last minHoursLastSeen hours ago 
-          if File.stat(file).mtime.to_i < maxLastSeen then next end        
-          #if historyhash[base].to_i > maxLastSeen then next end
-        end
-        
+        # nothing yet, might move maxLastSeenHours here      
       end
+      if maxLastSeenHours.length != 0 then
+        puts "maxLastSeenHours not zero #{maxLastSeenTime}"
+        if historyhash[base].to_i == 0 then next end 
+          if historyhash[base].to_i < maxLastSeenTime then next end
+        #end
+      end  
+      if maxFileAgeHours.length != 0 then
+        puts "minLastSeenHours not zero, maxLastSeenHours = #{maxLastSeenHours} mtime = #{File.stat(file).mtime.to_i} "
+        if File.stat(file).mtime.to_i < maxFileAgeTime then next end        
+      end 
       if fileSizeMax.length > 0 then 
         puts "fileSize.length > 0 "
         if (fileSizeMax.to_i * 1000000) < File.stat(file).size then next end
@@ -197,12 +206,13 @@ class Genplaylist2Glade
       puts "base = #{base}"
       puts "file size = #{File.stat(file).size}"
       puts "lastseen = #{historyhash[base].to_i}"
-      #puts "maxtime = #{maxtime}"
-      display = "#{display}#{base} \n"
       if historyhash[base.strip].to_i != 0 then
         #puts "seen here as not zero history"
-        #display = "#{display}lastseen = #{historyhash[base].to_i}\n"
       end
+      if hoursLastSeen > 300000 then hoursLastSeen = "never" end
+      fileAgeHours = (Time.now.to_i - File.stat(file).mtime.to_i)/(60*60)
+      puts "fileAgeHours = #{fileAgeHours}"
+      listviewApend(base,fileAgeHours,hoursLastSeen,File.stat(file).size/1000000)
       #puts "ext = #{ ext }"
       #puts "file #{file}"    
       if enableSend then
@@ -211,10 +221,8 @@ class Genplaylist2Glade
       end
       count = count + 1
     end
-    display = "#{display}\nfile count = #{count}"
     puts "count = #{count}"
-    #puts display
-    return display
+    return count
   end
 
   def saveconfig(config, configFile="./genPlayListconfig.yml")
@@ -258,6 +266,14 @@ class Genplaylist2Glade
     filename = dialog.filename if dialog.run == Gtk::Dialog::RESPONSE_ACCEPT
     dialog.destroy
     return filename
+  end
+
+  def listviewApend(fileName,fileAgeHours,hoursLastSeen,size)
+    iter = @store.append
+    iter[0] = fileName.to_s
+    iter[1] = fileAgeHours.to_s
+    iter[2] = hoursLastSeen.to_s
+    iter[3] = size.to_s
   end
 
 end
