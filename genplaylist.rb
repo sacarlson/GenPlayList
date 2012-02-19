@@ -34,7 +34,7 @@ class Genplaylist2Glade
       column.set_sort_column_id(i)
       @listview.append_column(column)
     }
-    @store = Gtk::ListStore.new(String, String, String, String)
+    @store = Gtk::ListStore.new(String, Integer, Integer, Integer)
     @listview.model = @store
 
     #puts @listview.clear
@@ -42,7 +42,6 @@ class Genplaylist2Glade
   end
   
   def on_updatePlaylist_clicked(widget)
-    #@glade["textview1"].buffer.text = genPlaylist( enableSend=true )
     result = genPlaylist( enableSend=true )
   end
 
@@ -211,7 +210,7 @@ class Genplaylist2Glade
       if historyhash[base.strip].to_i != 0 then
         #puts "seen here as not zero history"
       end
-      if hoursLastSeen > 300000 then hoursLastSeen = "never" end
+      if hoursLastSeen > 300000 then hoursLastSeen = 0 end
       fileAgeHours = (Time.now.to_i - File.stat(file).mtime.to_i)/(60*60)
       puts "fileAgeHours = #{fileAgeHours}"
       listviewApend(base,fileAgeHours,hoursLastSeen,File.stat(file).size/1000000)
@@ -273,9 +272,9 @@ class Genplaylist2Glade
   def listviewApend(fileName,fileAgeHours,hoursLastSeen,size)
     iter = @store.append
     iter[0] = fileName.to_s
-    iter[1] = fileAgeHours.to_s
-    iter[2] = hoursLastSeen.to_s
-    iter[3] = size.to_s
+    iter[1] = fileAgeHours.to_i
+    iter[2] = hoursLastSeen.to_i
+    iter[3] = size.to_i
   end
 
 end
