@@ -30,6 +30,8 @@ class Genplaylist2Glade
     @listview = @glade["listview"]
     [_("File Name"), _("Files Age hours"), _("Hours Last Seen"), _("File Size MB")].each_with_index { |name, i|
       column = Gtk::TreeViewColumn.new(name, Gtk::CellRendererText.new, :text => i)
+      column.set_resizable(true)
+      column.set_sort_column_id(i)
       @listview.append_column(column)
     }
     @store = Gtk::ListStore.new(String, String, String, String)
