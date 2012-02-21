@@ -4,6 +4,7 @@
   <!-- interface-naming-policy project-wide -->
   <widget class="GtkWindow" id="window_main">
     <property name="visible">True</property>
+    <signal name="destroy" handler="on_window_main_destroy"/>
     <child>
       <widget class="GtkVBox" id="vbox1">
         <property name="visible">True</property>
@@ -215,7 +216,7 @@
                 <property name="visible">True</property>
                 <child>
                   <widget class="GtkCheckButton" id="checkbuttoncase1">
-                    <property name="label" translatable="yes">Match case                     </property>
+                    <property name="label" translatable="yes">Match case                      </property>
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
                     <property name="receives_default">False</property>
@@ -231,6 +232,7 @@
                   <widget class="GtkLabel" id="label1">
                     <property name="visible">True</property>
                     <property name="label" translatable="yes">Matches:</property>
+                    <property name="justify">right</property>
                   </widget>
                   <packing>
                     <property name="position">1</property>
@@ -257,7 +259,8 @@
                 <child>
                   <widget class="GtkLabel" id="label2">
                     <property name="visible">True</property>
-                    <property name="label" translatable="yes">Does NOT Match:</property>
+                    <property name="label" translatable="yes">Does NOT Match: </property>
+                    <property name="justify">right</property>
                   </widget>
                   <packing>
                     <property name="position">1</property>
@@ -289,6 +292,7 @@
                   <widget class="GtkLabel" id="label4">
                     <property name="visible">True</property>
                     <property name="label" translatable="yes">Max Hrs file age: </property>
+                    <property name="justify">right</property>
                   </widget>
                   <packing>
                     <property name="position">1</property>
@@ -315,7 +319,8 @@
                 <child>
                   <widget class="GtkLabel" id="label5">
                     <property name="visible">True</property>
-                    <property name="label" translatable="yes">Max Hrs since last seen:</property>
+                    <property name="label" translatable="yes">Max Hrs since last seen: </property>
+                    <property name="justify">right</property>
                   </widget>
                   <packing>
                     <property name="position">1</property>
@@ -342,7 +347,8 @@
                 <child>
                   <widget class="GtkLabel" id="label14">
                     <property name="visible">True</property>
-                    <property name="label" translatable="yes">File size meg Max:</property>
+                    <property name="label" translatable="yes">File size meg Max: </property>
+                    <property name="justify">right</property>
                   </widget>
                   <packing>
                     <property name="position">1</property>
@@ -369,7 +375,8 @@
                 <child>
                   <widget class="GtkLabel" id="label16">
                     <property name="visible">True</property>
-                    <property name="label" translatable="yes">File size meg Min:</property>
+                    <property name="label" translatable="yes">File size meg Min: </property>
+                    <property name="justify">right</property>
                   </widget>
                   <packing>
                     <property name="position">1</property>
@@ -420,6 +427,7 @@
               <widget class="GtkTreeView" id="listview">
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
+                <signal name="row_activated" handler="on_listview_row_activated"/>
               </widget>
             </child>
           </widget>

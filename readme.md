@@ -35,7 +35,9 @@ goto edit>preferences and fill in the boxes of your Media Path with the location
 
 * Config settings for media directory, temp directory to ignore files that are not fully downloaded yet, media extension and play history file location.
 
-* After previewing results of searches you find that you want, you can then send the list to Your VLC player or most any mpris compatible media player.
+* After preview list generated you can double click on a file in the list to send that single file to the VLC play list
+
+* After previewing results of searches you find that you want, you can then send full list to Your VLC player or most any mpris compatible media player.
 
 Also see some of the screen shots provided to get an idea of it's simplisity and operation.
 

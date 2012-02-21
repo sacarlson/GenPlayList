@@ -16,7 +16,6 @@ require "find"
 require 'mpris'
 require 'yaml'
 
-
 class Genplaylist2Glade
   include GetText
 
@@ -34,11 +33,34 @@ class Genplaylist2Glade
       column.set_sort_column_id(i)
       @listview.append_column(column)
     }
-    @store = Gtk::ListStore.new(String, Integer, Integer, Integer)
+    @store = Gtk::ListStore.new(String, Integer, Integer, Integer,String)
     @listview.model = @store
 
     #puts @listview.clear
     
+  end
+
+  def on_window_main_destroy(widget)
+    puts "on_window_main_destroy() "
+    Gtk.main_quit
+  end
+
+  #  double click on preview listed file will send to VLC play list
+  def on_listview_row_activated(widget, arg0, arg1)
+    #this method not working after a sort
+    puts "on_listview_row_activated() #{arg0.indices[0]} }"
+    filenamefull = ""
+    row = 0
+    @store.each{ |model,path,iter| 
+      if row == arg0.indices[0] then
+        filenamefull = iter[4]
+        break
+      end
+      row = row + 1    
+    }
+    puts filenamefull
+    mpris = MPRIS.new
+    mpris.tracklist.add_track(filenamefull, false )
   end
   
   def on_updatePlaylist_clicked(widget)
@@ -141,6 +163,7 @@ class Genplaylist2Glade
     historyhash = getPlayHistory(@config['playHistoryFile'])
     count = 0
     @store.clear
+    @filename = []
     Find.find(@config['mediaPath']) do |file|
       #skip .. and . dirs
       next if file =~ /^\.\.?$/
@@ -213,9 +236,9 @@ class Genplaylist2Glade
       if hoursLastSeen > 300000 then hoursLastSeen = 0 end
       fileAgeHours = (Time.now.to_i - File.stat(file).mtime.to_i)/(60*60)
       puts "fileAgeHours = #{fileAgeHours}"
-      listviewApend(base,fileAgeHours,hoursLastSeen,File.stat(file).size/1000000)
+      listviewApend(base,fileAgeHours,hoursLastSeen,File.stat(file).size/1000000,file)
       #puts "ext = #{ ext }"
-      #puts "file #{file}"    
+      #puts "file #{file}" 
       if enableSend then
         # add it to the vlc playlist but don't play it yet
         mpris.tracklist.add_track( file, false )
@@ -269,12 +292,13 @@ class Genplaylist2Glade
     return filename
   end
 
-  def listviewApend(fileName,fileAgeHours,hoursLastSeen,size)
+  def listviewApend(fileName,fileAgeHours,hoursLastSeen,size,filenamefullpath = "")
     iter = @store.append
     iter[0] = fileName.to_s
     iter[1] = fileAgeHours.to_i
     iter[2] = hoursLastSeen.to_i
     iter[3] = size.to_i
+    iter[4] = filenamefullpath.to_s
   end
 
 end
